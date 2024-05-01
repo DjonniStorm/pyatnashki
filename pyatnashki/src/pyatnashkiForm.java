@@ -32,6 +32,7 @@ public class pyatnashkiForm extends JFrame {
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setSize(1000, 640);
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
 
         try {frame.setIconImage(new ImageIcon(ImageIO.read(new File("Source//frameIcon1.png"))).getImage());
         } catch (IOException e) {
@@ -167,7 +168,6 @@ public class pyatnashkiForm extends JFrame {
     class gamePanel {
         int prev = 0;
         int counter = 0;
-        private ArrayList<JButton> buttons;
         private int[][] buttonsVariants;
         private JPanel gamePanel;
         public gamePanel() {
@@ -176,7 +176,6 @@ public class pyatnashkiForm extends JFrame {
             gamePanel.setSize(new Dimension(600, 600));
             gamePanel.setBackground(Color.BLUE);
             gamePanel.setLayout(new GridLayout(4, 4));
-            buttons = new ArrayList<>();
             buttonsVariants = new int[4][4];
             init();
             gamePanel.setDoubleBuffered(true);
@@ -192,7 +191,9 @@ public class pyatnashkiForm extends JFrame {
                             if (counter == 0) {
                                 prev = e.getKeyCode();
                                 if (e.getKeyCode() == 72) {
-                                    switch (JOptionPane.showConfirmDialog(null, "ДА/НЕТ", "Ну", YES_NO_OPTION)) {
+                                    UIManager.put("OptionPane.yesButtonText"   , "Да" );
+                                    UIManager.put("OptionPane.noButtonText"   , "Нет" );
+                                    switch (JOptionPane.showConfirmDialog(null, "Начать заново", "Начать заново?", YES_NO_OPTION)) {
                                         case 0:
                                             init();
                                             repaintField();
@@ -224,28 +225,27 @@ public class pyatnashkiForm extends JFrame {
 
         private void init() {
             Random random = new Random();
-            int[] invariants = new int[16]; // инициализируем массив с именем invariants из 16 элементов - лт 0 до 15
+            int[] invariants = new int[16];
 
-            for (int i = 0; i < 4; i++) { // перебираем элементы i от 0 до 3
-                for (int j = 0; j < 4; j++) { // перебираем элементы j от 0 до 3
-                    buttonsVariants[i][j] = 0; // указываем что перебор в цикле начинается с нулевого элемента
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    buttonsVariants[i][j] = 0;
                     invariants[i*4 + j] = 0; // определяем какой из 16 элементов будет = 0
                 }
             }
 
-            for (int i = 1; i < 16; i++) { // перебираем елементы i от 1 до 15
-                int k; //обьявляем переменную k типа int
-                int l; //обьявляем переменную l типа int
-                do { // цикл с послеусловием
-                    k = random.nextInt(100) % 4; // переменной k присваиваем произвольное число от 0 до 100 деленное по модулю на 4
-                    l = random.nextInt(100) % 4; // переменной l присваиваем произвольное число от 0 до 100 деленное по модулю на 4
+            for (int i = 1; i < 16; i++) {
+                int k, l;
+                do {
+                    k = random.nextInt(100) % 4;
+                    l = random.nextInt(100) % 4;
                 }
                 while (buttonsVariants[k][l] != 0); // до тех пор пока двумерный массив numbers не равен 0
                 buttonsVariants[k][l] = i; // присваиваем двумерному массиву numbers значение i в цикле от 1 до 15
-                invariants[k*4+l] = i; // определяем позиции всех елементов кроме 0 на сетке
+                invariants[k*4+l] = i;
             }
 
-            boolean change = true; // в булевую переменную change заносим значение true
+            boolean change = true;
             while (change) {
                 change = false;
                 for (int i = 0; i < 16; i++) {
@@ -264,33 +264,33 @@ public class pyatnashkiForm extends JFrame {
                 }
             }
         }
-        public void repaintField() {  //метод расстановки кнопок со значениями на сетке
+        public void repaintField() {
             gamePanel.removeAll();
-
+            Font font = new Font("Comic Sans MS", Font.PLAIN, 25);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     JButton button = new JButton(Integer.toString(buttonsVariants[i][j]));
                     button.setFocusable(false);
                     button.setBounds(j * 150, i * 150, 150, 150);
                     button.setBorder(new LineBorder(new Color(30, 30, 30)));
-                    buttons.add(button);
                     gamePanel.add(button);
-                    button.setBackground(Color.getHSBColor(0.1059322f, 0.5221239f, 0.8862745f)); // устанавливаем цвет кнопок
+                    button.setFont(font);
+                    button.setBackground(Color.getHSBColor(0.1059322f, 0.5221239f, 0.8862745f));
                     if (buttonsVariants[i][j] == 0) {
-                        button.setVisible(false); // сокрытие нулевого элемента массива
+                        button.setVisible(false);
                     } else
                         button.addActionListener(new ClickListener());
                 }
             }
             gamePanel.validate();
         }
-        public boolean checkWin() { //метод проверки победы
+        public boolean checkWin() {
             boolean status = true;
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    if (i == 3 && j > 2) //проверка на то, что последняя ячейка в сетке пустая
+                    if (i == 3 && j > 2)
                         break;
-                    if (buttonsVariants[i][j] != i * 4 + j + 1) { //проверка на соотвествие элементам массива координатам в сетке
+                    if (buttonsVariants[i][j] != i * 4 + j + 1) {
                         status = false;
                     }
                 }
@@ -306,23 +306,23 @@ public class pyatnashkiForm extends JFrame {
             }
         }
 
-        public void change(int num) { // передаем в качестве входящих параметров метода change переменную num типа int
-            int i = 0, j = 0; // присваиваем переменным i и j типа int значение равное 0
-            for (int k = 0; k < 4; k++) { // перебираем элементы k от 0 до 3
-                for (int l = 0; l < 4; l++) { // перебираем элементы l от 0 до 3
+        public void change(int num) {
+            int i = 0, j = 0;
+            for (int k = 0; k < 4; k++) {
+                for (int l = 0; l < 4; l++) {
                     if (buttonsVariants[k][l] == num) { // если массив numbers[k][l] равен переменной num то,
-                        i = k; // переменную i приравниваем переменной k
-                        j = l; // переменную j приравниваем переменной l
+                        i = k; // строка
+                        j = l; // столбец
                     }
                 }
             }
 
-            /*реализация логики сдвигов кнопок на сетке 4 Х 4*/
+
             //сдвиг вверх по строкам
             if (i > 0) { // условие отвечающее за то можно ли сдвинуть кнопку по строке
-                if (buttonsVariants[i - 1][j] == 0) { //сравниваем значение координат элемента массива с кнопкой которая в текущем массиве равна нулю
-                    buttonsVariants[i - 1][j] = num; //присваиваем переменной num значение координат элемента массива
-                    buttonsVariants[i][j] = 0; //присваиваем нулевой элемент массива в ячейку которая перед этим смещалась в ноль
+                if (buttonsVariants[i - 1][j] == 0) {
+                    buttonsVariants[i - 1][j] = num;
+                    buttonsVariants[i][j] = 0;
                 }
             }
             //сдвиг вниз по строкам
@@ -362,7 +362,6 @@ public class pyatnashkiForm extends JFrame {
         private JPanel optionPanel;
         public optionPanel() {
             optionPanel = new JPanel();
-            //optionPanel.setLayout(new GridLayout(0, 1));
             optionPanel.setBackground(new Color(228, 203, 138));
             setStyleOptionPanel();
             optionPanel.setSize( new Dimension(frame.getWidth() / 2 + 100, frame.getHeight()));
