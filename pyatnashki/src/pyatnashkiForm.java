@@ -1,10 +1,10 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -27,7 +27,7 @@ public class pyatnashkiForm extends JFrame {
         frame.setContentPane(pictureBox);
         pictureBox.add(backgroundLabel);
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        frame.setSize(1000, 600);
+        frame.setSize(1000, 640);
         frame.setLocationRelativeTo(null);
 
         try {frame.setIconImage(new ImageIcon(ImageIO.read(new File("Source//frameIcon1.png"))).getImage());
@@ -40,9 +40,6 @@ public class pyatnashkiForm extends JFrame {
     private void frameDecoration() {
         startPanel = new startPanel();
         backgroundLabel.add(startPanel.getStartPanel());
-    }
-    public void closeFrame() {
-        frame.dispose();
     }
     public JFrame getFrame() {
         return frame;
@@ -114,12 +111,14 @@ public class pyatnashkiForm extends JFrame {
             buttonClose.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    UIManager.put("OptionPane.yesButtonText"   , "Да" );
+                    UIManager.put("OptionPane.noButtonText"   , "Нет" );
                     int n = JOptionPane.showConfirmDialog(
                             frame,
                             "Вы уверены, что хотите выйти?",
                             "Не уходите",
                             JOptionPane.YES_NO_OPTION,
-                            JOptionPane.INFORMATION_MESSAGE,
+                            JOptionPane.QUESTION_MESSAGE,
                             new ImageIcon("Source//sad.png")
                     );
                     switch (n) {
@@ -140,6 +139,15 @@ public class pyatnashkiForm extends JFrame {
                     backgroundLabel.add(panel.getGamePanel());
                 }
             });
+            buttonOptions.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    backgroundLabel.remove(startPanel);
+                    frame.repaint();
+                    optionPanel panel = new optionPanel();
+                    backgroundLabel.add(panel.getOptionPanel());
+                }
+            });
         }
     }
     class gamePanel {
@@ -156,8 +164,32 @@ public class pyatnashkiForm extends JFrame {
             buttonsVariants = new int[4][4];
             init();
             gamePanel.setDoubleBuffered(true);
-            gamePanel.setBackground(Color.white); // устанавливаем цвет фона
+            gamePanel.setBackground(Color.white);
             repaintField();
+            KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                    .addKeyEventDispatcher(new KeyEventDispatcher() {
+                        @Override
+                        public boolean dispatchKeyEvent(KeyEvent e) {
+                            System.out.println(e.getKeyCode());
+                            if (e.getKeyCode() == 27) {
+                                backgroundLabel.remove(gamePanel);
+                                frame.repaint();
+                                backgroundLabel.add(startPanel.getStartPanel());
+                            }
+                            if (e.getKeyCode() == 72) {
+                                init();
+                                repaintField();
+                            }
+                            if (e.getKeyCode() == 83) {
+                                try {
+                                    Desktop.getDesktop().browse(new java.net.URI("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
+                                } catch (IOException | URISyntaxException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            }
+                            return false;
+                        }
+                    });
         }
 
         public JPanel getGamePanel() {
@@ -188,7 +220,6 @@ public class pyatnashkiForm extends JFrame {
             }
 
             boolean change = true; // в булевую переменную change заносим значение true
-            int counter = 1; // инициализируем переменную counter типа int и присваиваем ей 1
             while (change) {
                 change = false;
                 for (int i = 0; i < 16; i++) {
@@ -199,7 +230,6 @@ public class pyatnashkiForm extends JFrame {
                                 invariants[i] = invariants[j];
                                 invariants[j] = temp;
                                 change = true;
-                                counter++;
                                 break;
                             }
                         }
@@ -248,6 +278,7 @@ public class pyatnashkiForm extends JFrame {
                 change(Integer.parseInt(name));
             }
         }
+
         public void change(int num) { // передаем в качестве входящих параметров метода change переменную num типа int
             int i = 0, j = 0; // присваиваем переменным i и j типа int значение равное 0
             for (int k = 0; k < 4; k++) { // перебираем элементы k от 0 до 3
@@ -290,12 +321,26 @@ public class pyatnashkiForm extends JFrame {
             }
             repaintField();
             if (checkWin()) {
+                UIManager.put("OptionPane.yesButtonText"   , "Да" );
+                UIManager.put("OptionPane.noButtonText"   , "Нет" );
                 JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ!", "Поздравляем", 1);
                 init();
                 repaintField();
                 setVisible(false);
                 setVisible(true);
             }
+        }
+    }
+    class optionPanel {
+        private JPanel optionPanel;
+        public optionPanel() {
+            optionPanel = new JPanel();
+            optionPanel.setBackground(new Color(228, 203, 138));
+            optionPanel.setSize(frame.getWidth() / 2, frame.getHeight() - 100);
+
+        }
+        public JPanel getOptionPanel() {
+            return optionPanel;
         }
     }
 }
