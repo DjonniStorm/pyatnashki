@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 
@@ -132,47 +133,58 @@ public class pyatnashkiForm extends JFrame {
             buttonStart.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    frame.remove(backgroundLabel);
-                    gamePanel panel = new gamePanel();
-                    frame.add(panel.getGameLabel());
+                    backgroundLabel.remove(startPanel);
                     frame.repaint();
+                    gamePanel panel = new gamePanel();
+                    backgroundLabel.add(panel.getGamePanel());
                 }
             });
         }
     }
     class gamePanel {
-        private JLabel backImg;
         private ArrayList<JButton> buttons;
         private JPanel gamePanel;
         public gamePanel() {
 
-            backImg = new JLabel();
-            backImg.setSize(new Dimension(frame.getWidth(), frame.getHeight()));
-
             gamePanel = new JPanel();
-            gamePanel.setSize(new Dimension(frame.getWidth() / 2, frame.getHeight() / 5 * 4));
+            gamePanel.setSize(new Dimension(600, 600));
             gamePanel.setBackground(Color.BLUE);
-            backImg.add(gamePanel);
-
+            gamePanel.setLayout(new GridLayout(4, 4));
             buttons = new ArrayList<>();
             MakeButtons(4);
-
-
+            placeButtons();
+            repaint();
+            revalidate();
         }
 
-        public JLabel getGameLabel() {
-            return backImg;
+        public JPanel getGamePanel() {
+            return gamePanel;
         }
         private void MakeButtons(int numberOfElements) { //делаем кнопочки
-            for (int i = 1; i < (int)Math.pow(numberOfElements, 2); i++) { //ну а что, перемножать их чтоле?
-                JButton button = new JButton(Integer.toString(i));
-                button.setMinimumSize(new Dimension(100, 100));
-                button.setMaximumSize(new Dimension(100, 100));
-                button.setPreferredSize(new Dimension(100, 100));
-                buttons.add(button);
-                gamePanel.add(button);
+            int counter = 0;
+            for (int i = 0; i < numberOfElements; i++) {
+                for (int j = 0; j < numberOfElements; j++, counter++) {
+                    JButton button = new JButton((i == 0 & j == 0) ? "" : Integer.toString(counter));
+                    button.setBounds(j * 140 + ((gamePanel.getWidth() - numberOfElements * 140) / 2), i * 140, 140, 140 );
+                    buttons.add(button);
+                }
             }
         }
+        private void placeButtons() {
+            for (JButton i : buttons) {
+                i.setMaximumSize(new Dimension(30, 30));
+                if (!Objects.equals(i.getText(), "")) {
+                    i.setBackground(Color.blue);
+                } else {
+                    i.setBackground(Color.RED);
+                    i.setEnabled(false);
+                }
+                i.setFocusPainted(false);
+                System.out.print(i + "\n");
+                gamePanel.add(i);
+            }
+        }
+
     }
 
 }
