@@ -170,8 +170,8 @@ public class pyatnashkiForm extends JFrame {
         int counter = 0;
         private int[][] buttonsVariants;
         private JPanel gamePanel;
+        private int scoreCounter = 0;
         public gamePanel() {
-
             gamePanel = new JPanel();
             gamePanel.setSize(new Dimension(600, 600));
             gamePanel.setBackground(Color.BLUE);
@@ -207,6 +207,9 @@ public class pyatnashkiForm extends JFrame {
                             if (counter >= 2) {
                                 counter = 0;
                             }
+                            if (e.getKeyCode() == 70) {
+                                JOptionPane.showMessageDialog(null, "Всего ходов: " + Integer.toString(scoreCounter), "Всего ходов", JOptionPane.INFORMATION_MESSAGE);
+                            }
                             if (e.getKeyCode() == 83) {
                                 try {
                                     Desktop.getDesktop().browse(new java.net.URI("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
@@ -224,6 +227,7 @@ public class pyatnashkiForm extends JFrame {
         }
 
         private void init() {
+            scoreCounter = -1;
             Random random = new Random();
             int[] invariants = new int[16];
 
@@ -265,6 +269,7 @@ public class pyatnashkiForm extends JFrame {
             }
         }
         public void repaintField() {
+            scoreCounter++;
             gamePanel.removeAll();
             Font font = new Font("Comic Sans MS", Font.PLAIN, 25);
             for (int i = 0; i < 4; i++) {
@@ -350,7 +355,7 @@ public class pyatnashkiForm extends JFrame {
             if (checkWin()) {
                 UIManager.put("OptionPane.yesButtonText"   , "Да" );
                 UIManager.put("OptionPane.noButtonText"   , "Нет" );
-                JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ!", "Поздравляем", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("Source//cake.jpg"));
+                JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ! Число ходов: "+ scoreCounter, "Поздравляем", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("Source//cake.jpg"));
                 init();
                 repaintField();
                 /*setVisible(false);
@@ -376,7 +381,7 @@ public class pyatnashkiForm extends JFrame {
         private void setStyleOptionPanel() {
             JLabel labelAbout = new JLabel("       Игра «Пятнашки»");
             JLabel labelAbout2 = new JLabel("       Студент группы ПИбд-13 Пазушкин Илья");
-            JTextArea settings = new JTextArea("      управление:\n      h - заново перемешать \n      esc - выйти в главное меню");
+            JTextArea settings = new JTextArea("      управление:\n      h - заново перемешать \n      esc - выйти в главное меню\n      g - посмотреть счёт");
             settings.setBackground(new Color(228, 203, 138));
             Font font = new Font("Verdana", Font.BOLD, 20);
             Font font2 = new Font("Verdana", Font.BOLD | Font.ITALIC, 16);
