@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 
@@ -143,6 +144,7 @@ public class pyatnashkiForm extends JFrame {
     }
     class gamePanel {
         private ArrayList<JButton> buttons;
+        private int[][] buttonsVariants;
         private JPanel gamePanel;
         public gamePanel() {
 
@@ -151,40 +153,149 @@ public class pyatnashkiForm extends JFrame {
             gamePanel.setBackground(Color.BLUE);
             gamePanel.setLayout(new GridLayout(4, 4));
             buttons = new ArrayList<>();
-            MakeButtons(4);
-            placeButtons();
-            repaint();
-            revalidate();
+            buttonsVariants = new int[4][4];
+            init();
+            gamePanel.setDoubleBuffered(true);
+            gamePanel.setBackground(Color.white); // устанавливаем цвет фона
+            repaintField();
         }
 
         public JPanel getGamePanel() {
             return gamePanel;
         }
-        private void MakeButtons(int numberOfElements) { //делаем кнопочки
-            int counter = 0;
-            for (int i = 0; i < numberOfElements; i++) {
-                for (int j = 0; j < numberOfElements; j++, counter++) {
-                    JButton button = new JButton((i == 0 & j == 0) ? "" : Integer.toString(counter));
-                    button.setBounds(j * 140 + ((gamePanel.getWidth() - numberOfElements * 140) / 2), i * 140, 140, 140 );
+
+        private void init() {
+            Random random = new Random();
+            int[] invariants = new int[16]; // инициализируем массив с именем invariants из 16 элементов - лт 0 до 15
+
+            for (int i = 0; i < 4; i++) { // перебираем элементы i от 0 до 3
+                for (int j = 0; j < 4; j++) { // перебираем элементы j от 0 до 3
+                    buttonsVariants[i][j] = 0; // указываем что перебор в цикле начинается с нулевого элемента
+                    invariants[i*4 + j] = 0; // определяем какой из 16 элементов будет = 0
+                }
+            }
+
+            for (int i = 1; i < 16; i++) { // перебираем елементы i от 1 до 15
+                int k; //обьявляем переменную k типа int
+                int l; //обьявляем переменную l типа int
+                do { // цикл с послеусловием
+                    k = random.nextInt(100) % 4; // переменной k присваиваем произвольное число от 0 до 100 деленное по модулю на 4
+                    l = random.nextInt(100) % 4; // переменной l присваиваем произвольное число от 0 до 100 деленное по модулю на 4
+                }
+                while (buttonsVariants[k][l] != 0); // до тех пор пока двумерный массив numbers не равен 0
+                buttonsVariants[k][l] = i; // присваиваем двумерному массиву numbers значение i в цикле от 1 до 15
+                invariants[k*4+l] = i; // определяем позиции всех елементов кроме 0 на сетке
+            }
+
+            boolean change = true; // в булевую переменную change заносим значение true
+            int counter = 1; // инициализируем переменную counter типа int и присваиваем ей 1
+            while (change) {
+                change = false;
+                for (int i = 0; i < 16; i++) {
+                    if (invariants[i] != i) {
+                        for (int j = 0; j < 16; j++) {
+                            if (invariants[j] == i) {
+                                int temp = invariants[i];
+                                invariants[i] = invariants[j];
+                                invariants[j] = temp;
+                                change = true;
+                                counter++;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        public void repaintField() {  //метод расстановки кнопок со значениями на сетке
+            gamePanel.removeAll();
+
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    JButton button = new JButton(Integer.toString(buttonsVariants[i][j]));
+                    button.setFocusable(false);
+                    button.setBounds(j * 150, i * 150, 150, 150);
                     buttons.add(button);
+                    gamePanel.add(button);
+                    button.setBackground(Color.getHSBColor(0.1059322f, 0.5221239f, 0.8862745f)); // устанавливаем цвет кнопок
+                    if (buttonsVariants[i][j] == 0) {
+                        button.setVisible(false); // сокрытие нулевого элемента массива
+                    } else
+                        button.addActionListener(new ClickListener());
                 }
             }
+            gamePanel.validate();
         }
-        private void placeButtons() {
-            for (JButton i : buttons) {
-                i.setMaximumSize(new Dimension(30, 30));
-                if (!Objects.equals(i.getText(), "")) {
-                    i.setBackground(Color.blue);
-                } else {
-                    i.setBackground(Color.RED);
-                    i.setEnabled(false);
+        public boolean checkWin() { //метод проверки победы
+            boolean status = true;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (i == 3 && j > 2) //проверка на то, что последняя ячейка в сетке пустая
+                        break;
+                    if (buttonsVariants[i][j] != i * 4 + j + 1) { //проверка на соотвествие элементам массива координатам в сетке
+                        status = false;
+                    }
                 }
-                i.setFocusPainted(false);
-                System.out.print(i + "\n");
-                gamePanel.add(i);
+            }
+            return status;
+        }
+        private class ClickListener implements ActionListener {
+            public void actionPerformed(ActionEvent e) {
+                JButton button = (JButton) e.getSource();
+                button.setVisible(false);
+                String name = button.getText();
+                change(Integer.parseInt(name));
             }
         }
+        public void change(int num) { // передаем в качестве входящих параметров метода change переменную num типа int
+            int i = 0, j = 0; // присваиваем переменным i и j типа int значение равное 0
+            for (int k = 0; k < 4; k++) { // перебираем элементы k от 0 до 3
+                for (int l = 0; l < 4; l++) { // перебираем элементы l от 0 до 3
+                    if (buttonsVariants[k][l] == num) { // если массив numbers[k][l] равен переменной num то,
+                        i = k; // переменную i приравниваем переменной k
+                        j = l; // переменную j приравниваем переменной l
+                    }
+                }
+            }
 
+            /*реализация логики сдвигов кнопок на сетке 4 Х 4*/
+            //сдвиг вверх по строкам
+            if (i > 0) { // условие отвечающее за то можно ли сдвинуть кнопку по строке
+                if (buttonsVariants[i - 1][j] == 0) { //сравниваем значение координат элемента массива с кнопкой которая в текущем массиве равна нулю
+                    buttonsVariants[i - 1][j] = num; //присваиваем переменной num значение координат элемента массива
+                    buttonsVariants[i][j] = 0; //присваиваем нулевой элемент массива в ячейку которая перед этим смещалась в ноль
+                }
+            }
+            //сдвиг вниз по строкам
+            if (i < 3) {
+                if (buttonsVariants[i + 1][j] == 0) {
+                    buttonsVariants[i + 1][j] = num;
+                    buttonsVariants[i][j] = 0;
+                }
+            }
+            //сдвиг влево по столбцам
+            if (j > 0) {
+                if (buttonsVariants[i][j - 1] == 0) {
+                    buttonsVariants[i][j - 1] = num;
+                    buttonsVariants[i][j] = 0;
+                }
+            }
+            //сдвиг вправо по столбцам
+            if (j < 3) {
+                if (buttonsVariants[i][j + 1] == 0) {
+                    buttonsVariants[i][j + 1] = num;
+                    buttonsVariants[i][j] = 0;
+                }
+            }
+            repaintField();
+            if (checkWin()) {
+                JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ!", "Поздравляем", 1);
+                init();
+                repaintField();
+                setVisible(false);
+                setVisible(true);
+            }
+        }
     }
-
 }
