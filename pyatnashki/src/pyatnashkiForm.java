@@ -1,5 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
+import static javax.swing.JOptionPane.OPTIONS_PROPERTY;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 
 public class pyatnashkiForm extends JFrame {
@@ -36,6 +39,18 @@ public class pyatnashkiForm extends JFrame {
         }
         frameDecoration();
         frame.setVisible(true);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .addKeyEventDispatcher(new KeyEventDispatcher() {
+                    @Override
+                    public boolean dispatchKeyEvent(KeyEvent e) {
+                        if (e.getKeyCode() == 27) {
+                            backgroundLabel.removeAll();
+                            frame.repaint();
+                            backgroundLabel.add(startPanel.getStartPanel());
+                        }
+                        return false;
+                    }
+                });
     }
     private void frameDecoration() {
         startPanel = new startPanel();
@@ -150,6 +165,8 @@ public class pyatnashkiForm extends JFrame {
         }
     }
     class gamePanel {
+        int prev = 0;
+        int counter = 0;
         private ArrayList<JButton> buttons;
         private int[][] buttonsVariants;
         private JPanel gamePanel;
@@ -165,19 +182,29 @@ public class pyatnashkiForm extends JFrame {
             gamePanel.setDoubleBuffered(true);
             gamePanel.setBackground(Color.white);
             repaintField();
+
             KeyboardFocusManager.getCurrentKeyboardFocusManager()
                     .addKeyEventDispatcher(new KeyEventDispatcher() {
                         @Override
                         public boolean dispatchKeyEvent(KeyEvent e) {
                             System.out.println(e.getKeyCode());
-                            if (e.getKeyCode() == 27) {
-                                backgroundLabel.remove(gamePanel);
-                                frame.repaint();
-                                backgroundLabel.add(startPanel.getStartPanel());
+                            System.out.println(counter + "/");
+                            if (counter == 0) {
+                                prev = e.getKeyCode();
+                                if (e.getKeyCode() == 72) {
+                                    switch (JOptionPane.showConfirmDialog(null, "ДА/НЕТ", "Ну", YES_NO_OPTION)) {
+                                        case 0:
+                                            init();
+                                            repaintField();
+                                            break;
+                                        case 1:
+                                        default: break;
+                                    }
+                                }
                             }
-                            if (e.getKeyCode() == 72) {
-                                init();
-                                repaintField();
+                            counter++;
+                            if (counter >= 2) {
+                                counter = 0;
                             }
                             if (e.getKeyCode() == 83) {
                                 try {
@@ -245,6 +272,7 @@ public class pyatnashkiForm extends JFrame {
                     JButton button = new JButton(Integer.toString(buttonsVariants[i][j]));
                     button.setFocusable(false);
                     button.setBounds(j * 150, i * 150, 150, 150);
+                    button.setBorder(new LineBorder(new Color(30, 30, 30)));
                     buttons.add(button);
                     gamePanel.add(button);
                     button.setBackground(Color.getHSBColor(0.1059322f, 0.5221239f, 0.8862745f)); // устанавливаем цвет кнопок
@@ -322,11 +350,11 @@ public class pyatnashkiForm extends JFrame {
             if (checkWin()) {
                 UIManager.put("OptionPane.yesButtonText"   , "Да" );
                 UIManager.put("OptionPane.noButtonText"   , "Нет" );
-                JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ!", "Поздравляем", 1);
+                JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ!", "Поздравляем", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("Source//cake.jpg"));
                 init();
                 repaintField();
-                setVisible(false);
-                setVisible(true);
+                /*setVisible(false);
+                setVisible(true);*/
             }
         }
     }
