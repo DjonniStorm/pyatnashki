@@ -102,7 +102,6 @@ public class pyatnashkiForm extends JFrame {
             startPanel.add(Box.createVerticalStrut(50));
             startPanel.add(buttonClose);
 
-            final Color col = buttonStart.getBackground();
 
             buttonStart.setFocusPainted(false);
             buttonClose.setFocusPainted(false);
@@ -335,12 +334,35 @@ public class pyatnashkiForm extends JFrame {
         private JPanel optionPanel;
         public optionPanel() {
             optionPanel = new JPanel();
+            //optionPanel.setLayout(new GridLayout(0, 1));
             optionPanel.setBackground(new Color(228, 203, 138));
-            optionPanel.setSize(frame.getWidth() / 2, frame.getHeight() - 100);
-
+            setStyleOptionPanel();
+            optionPanel.setSize( new Dimension(frame.getWidth() / 2 + 100, frame.getHeight()));
+            optionPanel.setForeground(new Color(0, 0, 0));
+            optionPanel.setSize( new Dimension(frame.getWidth() / 2 + 110, frame.getHeight()));
+            frame.setSize(frame.getWidth() + 10, frame.getHeight());
+            frame.setSize(frame.getWidth() - 10, frame.getHeight());
         }
         public JPanel getOptionPanel() {
             return optionPanel;
+        }
+        private void setStyleOptionPanel() {
+            JLabel labelAbout = new JLabel("       Игра «Пятнашки»");
+            JLabel labelAbout2 = new JLabel("       Студент группы ПИбд-13 Пазушкин Илья");
+            JTextArea settings = new JTextArea("      управление:\n      h - заново перемешать \n      esc - выйти в главное меню");
+            settings.setBackground(new Color(228, 203, 138));
+            Font font = new Font("Verdana", Font.BOLD, 20);
+            Font font2 = new Font("Verdana", Font.BOLD | Font.ITALIC, 16);
+            labelAbout.setFont(font);
+            labelAbout2.setFont(font2);
+            settings.setFont(font);
+            labelAbout.setForeground(Color.BLACK);
+            optionPanel.setLayout(new BoxLayout(this.getOptionPanel(), BoxLayout.Y_AXIS));
+            optionPanel.add(labelAbout, BorderLayout.CENTER);
+            optionPanel.add(Box.createVerticalStrut(20));
+            optionPanel.add(labelAbout2, BorderLayout.CENTER);
+            optionPanel.add(Box.createVerticalStrut(20));
+            optionPanel.add(settings);
         }
     }
 }
