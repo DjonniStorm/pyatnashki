@@ -6,29 +6,20 @@ import java.io.IOException;
 
 public class pyatnashkiForm extends JFrame {
     private JFrame frame;
+    private JLabel backgroundLabel;
     private JPanel pictureBox;
     private gamePanel gamePanel;
     private startPanel startPanel;
     public pyatnashkiForm() {
-        frame = new JFrame("Пятнашки") {
-            private Image backgroundImage;
+        frame = new JFrame("Пятнашки");
 
-            {
-                try {
-                    backgroundImage = ImageIO.read(new File("Source//backgroundImage.png"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            public void paint( Graphics g ) {
-                super.paint(g);
-                g.drawImage(backgroundImage, 0, 0, null);
-            }
-        };
+        ImageIcon icon = new ImageIcon("Source//backgroundImage.png");
+        backgroundLabel = new JLabel(icon);
+        backgroundLabel.setSize(1000, 600);
         pictureBox = new JPanel();
         frame.pack();
         frame.setContentPane(pictureBox);
+        pictureBox.add(backgroundLabel);
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
@@ -41,8 +32,7 @@ public class pyatnashkiForm extends JFrame {
         frame.setVisible(true);
     }
     private void frameDecoration() {
-        pictureBox.setBackground(Color.BLUE);
         startPanel = new startPanel();
-        pictureBox.add(startPanel.getStartPanel());
+        backgroundLabel.add(startPanel.getStartPanel());
     }
 }
