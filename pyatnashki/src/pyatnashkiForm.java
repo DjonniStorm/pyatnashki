@@ -1,17 +1,13 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.Random;
-
-import static javax.swing.JOptionPane.OPTIONS_PROPERTY;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 
 public class pyatnashkiForm extends JFrame {
@@ -19,6 +15,7 @@ public class pyatnashkiForm extends JFrame {
     private JLabel backgroundLabel;
     private JPanel pictureBox;
     private startPanel startPanel;
+    private int MaxSessionScore = 0;
     public pyatnashkiForm() {
         frame = new JFrame("Пятнашки");
 
@@ -237,6 +234,7 @@ public class pyatnashkiForm extends JFrame {
                     invariants[i*4 + j] = 0; // определяем какой из 16 элементов будет = 0
                 }
             }
+            Arrays.stream(invariants).forEach(System.out::println);
 
             for (int i = 1; i < 16; i++) {
                 int k, l;
@@ -244,10 +242,11 @@ public class pyatnashkiForm extends JFrame {
                     k = random.nextInt(100) % 4;
                     l = random.nextInt(100) % 4;
                 }
-                while (buttonsVariants[k][l] != 0); // до тех пор пока двумерный массив numbers не равен 0
-                buttonsVariants[k][l] = i; // присваиваем двумерному массиву numbers значение i в цикле от 1 до 15
+                while (buttonsVariants[k][l] != 0); // до тех пор пока двумерный массив buttonsVariants не равен 0
+                buttonsVariants[k][l] = i; // присваиваем двумерному массиву buttonsVariants значение i в цикле от 1 до 15
                 invariants[k*4+l] = i;
             }
+            Arrays.stream(invariants).forEach(System.out::println);
 
             boolean change = true;
             while (change) {
@@ -315,14 +314,12 @@ public class pyatnashkiForm extends JFrame {
             int i = 0, j = 0;
             for (int k = 0; k < 4; k++) {
                 for (int l = 0; l < 4; l++) {
-                    if (buttonsVariants[k][l] == num) { // если массив numbers[k][l] равен переменной num то,
+                    if (buttonsVariants[k][l] == num) { // если массив buttonsVariants[k][l] равен переменной num то,
                         i = k; // строка
                         j = l; // столбец
                     }
                 }
             }
-
-
             //сдвиг вверх по строкам
             if (i > 0) { // условие отвечающее за то можно ли сдвинуть кнопку по строке
                 if (buttonsVariants[i - 1][j] == 0) {
@@ -353,13 +350,12 @@ public class pyatnashkiForm extends JFrame {
             }
             repaintField();
             if (checkWin()) {
+                MaxSessionScore = scoreCounter;
                 UIManager.put("OptionPane.yesButtonText"   , "Да" );
                 UIManager.put("OptionPane.noButtonText"   , "Нет" );
                 JOptionPane.showMessageDialog(null, "ВЫ ВЫИГРАЛИ! Число ходов: "+ scoreCounter, "Поздравляем", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("Source//cake.jpg"));
                 init();
                 repaintField();
-                /*setVisible(false);
-                setVisible(true);*/
             }
         }
     }
@@ -379,22 +375,37 @@ public class pyatnashkiForm extends JFrame {
             return optionPanel;
         }
         private void setStyleOptionPanel() {
-            JLabel labelAbout = new JLabel("       Игра «Пятнашки»");
-            JLabel labelAbout2 = new JLabel("       Студент группы ПИбд-13 Пазушкин Илья");
-            JTextArea settings = new JTextArea("      управление:\n      h - заново перемешать \n      esc - выйти в главное меню\n      g - посмотреть счёт");
-            settings.setBackground(new Color(228, 203, 138));
+            JLabel labelAbout = new JLabel("  Игра «Пятнашки»");
+            JLabel labelAbout2 = new JLabel("  Студент группы ПИбд-13 Пазушкин Илья");
             Font font = new Font("Verdana", Font.BOLD, 20);
             Font font2 = new Font("Verdana", Font.BOLD | Font.ITALIC, 16);
             labelAbout.setFont(font);
             labelAbout2.setFont(font2);
-            settings.setFont(font);
+            JLabel settings = new JLabel("  УПРАВЛЕНИЕ:");
+            JLabel h = new JLabel("   H - заново перемешать:");
+            JLabel esc = new JLabel("   Esc - выйти в главное меню:");
+            JLabel g = new JLabel("   G - посмотреть счёт:");
+            settings.setFont(font2);
+            h.setFont(font2);
+            esc.setFont(font2);
+            g.setFont(font2);
             labelAbout.setForeground(Color.BLACK);
+            JLabel labelScore = new JLabel("    Лучший счёт за игровую сессию: " + MaxSessionScore);
+            labelScore.setForeground(Color.BLACK);
+            labelScore.setFont(font2);
             optionPanel.setLayout(new BoxLayout(this.getOptionPanel(), BoxLayout.Y_AXIS));
-            optionPanel.add(labelAbout, BorderLayout.CENTER);
+            optionPanel.add(labelAbout, SwingConstants.CENTER);
             optionPanel.add(Box.createVerticalStrut(20));
             optionPanel.add(labelAbout2, BorderLayout.CENTER);
-            optionPanel.add(Box.createVerticalStrut(20));
+            optionPanel.add(Box.createVerticalStrut(50));
             optionPanel.add(settings);
+            optionPanel.add(Box.createVerticalStrut(20));
+            optionPanel.add(h);
+            optionPanel.add(esc);
+            optionPanel.add(g);
+            optionPanel.add(Box.createVerticalStrut(50));
+            optionPanel.add(labelScore);
+
         }
     }
 }
